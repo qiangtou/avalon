@@ -5,45 +5,20 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
 
-        <script src="jquery.js">
+        <script src="avalon.js"></script>
 
-        </script>
         <script>
-function addWbr(array){
-    var ret = []
-    for(var i = 0, n = array.length; i < n; i++){
-        var str = array[i]
-        ret.push(str)
-        if(str!=" "){
-            ret.push("<wbr>")
-        }
-    }
-    return ret.join("")
-}
-            $(function() {
-                var div
-                $("textarea").on("input", function() {
-                    var self = $(this)
-                    if (/@/.test(this.value)) {
-                        if (!div) {
-                            console.log(addWbr(self.val().split("")))
-                            div = $("<div/>").appendTo("body").css({
-                                width: self.width(),
-                                height: self.height(),
-                                border: "1px  solid  red"
-                            }).html(addWbr(self.val().split("")))
-                        }
-                    }
-                })
-            })
 
+            avalon.define("test", function(vm) {
+                vm.toggle = true
+            })
 
         </script>
 
     </head>
-    <body>
-        <textarea>
-            
-        </textarea>
+    <body ms-controller="test">
+
+        <input type="radio" ms-duplex="toggle"/>
+        <div ms-visible="toggle">ddddddddd</div>
     </body>
 </html>

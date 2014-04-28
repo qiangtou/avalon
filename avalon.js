@@ -1630,30 +1630,19 @@
         scanAttr(elem, vmodels) //扫描特性节点
     }
 
-    var scanNodes = W3C ? function scanNodes(parent, vmodels) {
+    function  scanNodes(parent, vmodels) {
         var node = parent.firstChild
         while (node) {
             var nextNode = node.nextSibling
             if (node.nodeType === 1) {
-                scanTag(node, vmodels) //扫描元素节点
-            } else if (node.nodeType === 3 && rexpr.test(node.data)) {
-                scanText(node, node.data, vmodels) //扫描文本节点
-            }
-            node = nextNode
-        }
-    } : function(parent, vmodels) {
-        var node = parent.firstChild
-        while (node) {
-            var nextNode = node.nextSibling
-            if (node.nodeType === 1) {
-                scanTag(node, vmodels) //扫描元素节点
+                scanTag(node, vmodels)
             } else if (node.nodeType === 3) {
-                if (rexpr.test(node.dara)) {
-                    scanText(node, node.dara, vmodels) //扫描文本节点
+                if (rexpr.test(node.data)) {
+                    scanText(node, node.data, vmodels)
                 }
-            } else if (node.nodeType === 8) {
-                if (rexpr.test(node.innerHTML)) {
-                    scanText(node, node.innerHTML, vmodels) //扫描文本节点
+            } else if (node.nodeType === 8) {//在IE6-8里，如果插值表达式的界定符为<% %>，那么对应位置会变成
+                if (rexpr.test(node.innerHTML)) {//一个注释节点，见#346
+                    scanText(node, node.innerHTML, vmodels)
                 }
             }
             node = nextNode
@@ -2652,7 +2641,7 @@
             data.proxies = []
             data.template = template
             node = template.firstChild
-            data.fastRepeat = node.nodeType === 1 && template.lastChild === node && !node.attributes["ms-controller"] && !node.attributes["ms-important"]
+            data.fastRepeat = !!node && node.nodeType === 1 && template.lastChild === node && !node.attributes["ms-controller"] && !node.attributes["ms-important"]
             if (freturn) {
                 return
             }
@@ -2909,6 +2898,7 @@
 
                     removeFn = function(e) {
                         var key = e.keyCode
+                        //    command            modifiers                   arrows
                         if (key === 91 || (15 < key && key < 19) || (37 <= key && key <= 40))
                             return
                         updateVModel()
@@ -3891,14 +3881,7 @@
             if (url === "ready!" || (modules[url] && modules[url].state === 2)) {
                 return url
             }
-            //2. 转化为完整路径
-            if (typeof kernel.shim[url] === "object") {
-                shim = kernel.shim[url]
-            }
-            if (kernel.paths[url]) { //别名机制
-                url = kernel.paths[url]
-            }
-            //3.  处理text!  css! 等资源
+            //2.  处理text!  css! 等资源
             var plugin
             url = url.replace(/^\w+!/, function(a) {
                 plugin = a.slice(0, -1)
@@ -3906,6 +3889,14 @@
             })
             plugin = plugin || "js"
             plugin = plugins[plugin] || noop
+            //3. 转化为完整路径
+            if (typeof kernel.shim[url] === "object") {
+                shim = kernel.shim[url]
+            }
+            if (kernel.paths[url]) { //别名机制
+                url = kernel.paths[url]
+            }
+
             //4. 补全路径
             if (/^(\w+)(\d)?:.*/.test(url)) {
                 ret = url
